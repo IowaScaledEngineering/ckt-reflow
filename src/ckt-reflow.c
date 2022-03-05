@@ -222,14 +222,19 @@ uint16_t mcp9600_readTemperature(void)
 }
 
 
+#define BUZZER_PIN_A  PD4
+#define BUZZER_PIN_B  PD5
+
 void disableBuzzer(void)
 {
-
+	PORTD &= ~_BV(BUZZER_PIN_A);
+	PORTD &= ~_BV(BUZZER_PIN_B);
 }
 
 void enableBuzzer(void)
 {
-
+	PORTD &= ~_BV(BUZZER_PIN_A);
+	PORTD |= _BV(BUZZER_PIN_B);
 }
 
 
@@ -260,7 +265,8 @@ void init(void)
 	DDRB |= _BV(LCD_BACKLIGHT_PIN);
 	DDRD |= _BV(OVEN_PIN);
 	disableOven();
-	
+
+	DDRD |= _BV(BUZZER_PIN_A) | _BV(BUZZER_PIN_B);	
 	disableBuzzer();
 
 	initializeSwitches();
@@ -328,8 +334,6 @@ int main(void)
 
 	wdt_reset();
 	
-	disableOven();
-	disableBuzzer();
  	drawSoftKeys_p(PSTR("START"), PSTR(""), PSTR(""), PSTR(""));
 		
 	while (1)
@@ -418,7 +422,8 @@ int main(void)
 			case RAMP1_DRAW:
 				drawSoftKeys_p(PSTR(""), PSTR(""), PSTR(""), PSTR(""));
 				lcd_gotoxy(8,2);
-				lcd_puts(" >");
+				lcd_putc(' ');
+				lcd_putc(0x7E);
 				printDec3Dig(SOAK_TEMP);
 				lcd_putc('C');
 				enableOven();
@@ -456,7 +461,8 @@ int main(void)
 			case RAMP2_DRAW:
 				drawSoftKeys_p(PSTR(""), PSTR(""), PSTR(""), PSTR(""));
 				lcd_gotoxy(8,2);
-				lcd_puts(" >");
+				lcd_putc(' ');
+				lcd_putc(0x7E);
 				printDec3Dig(REFLOW_TEMP);
 				lcd_putc('C');
 				enableOven();
