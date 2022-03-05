@@ -403,7 +403,7 @@ int main(void)
 		switch(reflowState)
 		{
 			case IDLE_DRAW:
-				drawSoftKeys_p(PSTR("START"), PSTR(""), PSTR(""), PSTR("ON"));
+				drawSoftKeys_p(PSTR("START"), PSTR(""), PSTR("ON"), PSTR(""));
 				lcd_gotoxy(8,2);
 				lcd_puts(" IDLE ");
 				disableOven();
@@ -415,7 +415,7 @@ int main(void)
 					celsiusTemperature_max = celsiusTemperature;
 					reflowState = RAMP1_DRAW;
 				}
-				else if (SOFTKEY_4 & buttonsPressed)
+				else if (SOFTKEY_3 & buttonsPressed)
 				{
 					reflowState = MANUAL_DRAW;
 				}
