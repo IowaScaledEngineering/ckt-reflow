@@ -77,6 +77,8 @@ typedef enum
 {
 	IDLE_DRAW,
 	IDLE,
+	MANUAL_DRAW,
+	MANUAL,
 	RAMP1_DRAW,
 	RAMP1,
 	SOAK_DRAW,
@@ -319,7 +321,7 @@ int main(void)
 	uint8_t buttonsPressed=0;
 	uint8_t buttonLongPressCounters[4] = {3,3,3,3};
 	DebounceState d;
-	ReflowState reflowState = IDLE;
+	ReflowState reflowState = IDLE_DRAW;
 	
 	uint16_t temperatureReadErrors = 0;
 	
@@ -334,8 +336,6 @@ int main(void)
 
 	wdt_reset();
 	
- 	drawSoftKeys_p(PSTR("START"), PSTR(""), PSTR(""), PSTR(""));
-		
 	while (1)
 	{
 		wdt_reset();
@@ -403,9 +403,10 @@ int main(void)
 		switch(reflowState)
 		{
 			case IDLE_DRAW:
-				drawSoftKeys_p(PSTR("START"), PSTR(""), PSTR(""), PSTR(""));
+				drawSoftKeys_p(PSTR("START"), PSTR(""), PSTR(""), PSTR("ON"));
 				lcd_gotoxy(8,2);
 				lcd_puts(" IDLE ");
+				disableOven();
 				reflowState = IDLE;
 				break;
 			case IDLE:
@@ -414,13 +415,32 @@ int main(void)
 					celsiusTemperature_max = celsiusTemperature;
 					reflowState = RAMP1_DRAW;
 				}
-				
+				else if (SOFTKEY_4 & buttonsPressed)
+				{
+					reflowState = MANUAL_DRAW;
+				}
+				// Buttons handled, clear
+				buttonsPressed = 0;
+				break;
+
+			case MANUAL_DRAW:
+				drawSoftKeys_p(PSTR(""), PSTR(""), PSTR("OFF"), PSTR(""));
+				lcd_gotoxy(8,2);
+				lcd_puts("MANUAL");
+				enableOven();
+				reflowState = MANUAL;
+				break;
+			case MANUAL:
+				if (SOFTKEY_3 & buttonsPressed)
+				{
+					reflowState = IDLE_DRAW;
+				}
 				// Buttons handled, clear
 				buttonsPressed = 0;
 				break;
 
 			case RAMP1_DRAW:
-				drawSoftKeys_p(PSTR(""), PSTR(""), PSTR(""), PSTR(""));
+				drawSoftKeys_p(PSTR(""), PSTR("CANCEL"), PSTR(""), PSTR(""));
 				lcd_gotoxy(8,2);
 				lcd_putc(' ');
 				lcd_putc(0x7E);
@@ -438,10 +458,16 @@ int main(void)
 					}
 					reflowState = SOAK_DRAW;
 				}
+				if (SOFTKEY_2 & buttonsPressed)
+				{
+					reflowState = IDLE_DRAW;
+				}
+				// Buttons handled, clear
+				buttonsPressed = 0;
 				break;
 
 			case SOAK_DRAW:
-				drawSoftKeys_p(PSTR(""), PSTR(""), PSTR(""), PSTR(""));
+				drawSoftKeys_p(PSTR(""), PSTR("CANCEL"), PSTR(""), PSTR(""));
 				lcd_gotoxy(8,2);
 				lcd_puts(" SOAK ");
 				disableOven();
@@ -456,10 +482,16 @@ int main(void)
 				{
 					reflowState = RAMP2_DRAW;
 				}
+				if (SOFTKEY_2 & buttonsPressed)
+				{
+					reflowState = IDLE_DRAW;
+				}
+				// Buttons handled, clear
+				buttonsPressed = 0;
 				break;
 
 			case RAMP2_DRAW:
-				drawSoftKeys_p(PSTR(""), PSTR(""), PSTR(""), PSTR(""));
+				drawSoftKeys_p(PSTR(""), PSTR("CANCEL"), PSTR(""), PSTR(""));
 				lcd_gotoxy(8,2);
 				lcd_putc(' ');
 				lcd_putc(0x7E);
@@ -477,10 +509,16 @@ int main(void)
 					}
 					reflowState = REFLOW_DRAW;
 				}
+				if (SOFTKEY_2 & buttonsPressed)
+				{
+					reflowState = IDLE_DRAW;
+				}
+				// Buttons handled, clear
+				buttonsPressed = 0;
 				break;
 
 			case REFLOW_DRAW:
-				drawSoftKeys_p(PSTR(""), PSTR(""), PSTR(""), PSTR(""));
+				drawSoftKeys_p(PSTR(""), PSTR("CANCEL"), PSTR(""), PSTR(""));
 				lcd_gotoxy(8,2);
 				lcd_puts("REFLOW");
 				disableOven();
@@ -495,6 +533,12 @@ int main(void)
 				{
 					reflowState = DONE_DRAW;
 				}
+				if (SOFTKEY_2 & buttonsPressed)
+				{
+					reflowState = IDLE_DRAW;
+				}
+				// Buttons handled, clear
+				buttonsPressed = 0;
 				break;
 
 			case DONE_DRAW:
@@ -511,7 +555,6 @@ int main(void)
 					disableBuzzer();
 					reflowState = IDLE_DRAW;
 				}
-				
 				// Buttons handled, clear
 				buttonsPressed = 0;
 				break;
