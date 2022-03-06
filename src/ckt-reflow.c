@@ -38,10 +38,10 @@ LICENSE:
 #include "avr-i2c-master.h"
 
 
-#define SOAK_TEMP     200
-#define SOAK_TIME     900
-#define REFLOW_TEMP   230
-#define REFLOW_TIME   900
+#define SOAK_TEMP     205
+#define SOAK_TIME     1200
+#define REFLOW_TEMP   235
+#define REFLOW_TIME   1200
 
 
 
@@ -403,7 +403,7 @@ int main(void)
 		switch(reflowState)
 		{
 			case IDLE_DRAW:
-				drawSoftKeys_p(PSTR("START"), PSTR(""), PSTR("ON"), PSTR(""));
+				drawSoftKeys_p(PSTR("START"), PSTR(""), PSTR(" ON "), PSTR(""));
 				lcd_gotoxy(8,2);
 				lcd_puts(" IDLE ");
 				disableOven();
@@ -424,7 +424,7 @@ int main(void)
 				break;
 
 			case MANUAL_DRAW:
-				drawSoftKeys_p(PSTR(""), PSTR(""), PSTR("OFF"), PSTR(""));
+				drawSoftKeys_p(PSTR(""), PSTR(""), PSTR(" OFF"), PSTR(""));
 				lcd_gotoxy(8,2);
 				lcd_puts("MANUAL");
 				enableOven();
@@ -473,6 +473,7 @@ int main(void)
 				disableOven();
 				reflowState = SOAK;
 				break;
+				
 			case SOAK:
 				ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 				{
